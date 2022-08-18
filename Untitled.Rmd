@@ -1,0 +1,82 @@
+---
+title: "Activities"
+output: html_document
+date: "2022-08-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+
+library(patchwork)
+library(ggrepel)
+library(gghighlight)
+library(paletteer)
+library(ggExtra)
+library(ggbeeswarm)
+
+library(gapminder)
+```
+
+```{r}
+space <- read_csv(here("data", "space_launches.csv"))
+```
+
+```{r}
+ggplot(data = space, aes(x = variant, y = type)) +
+  geom_boxplot() +
+  theme(panel.grid.major.x = element_line(color = "yellow"),
+        axis.title.y = element_text(color = "red", size = 30),
+        axis.title.x = element_text(color = "purple", size = 10)) +
+  labs(x = "Variant", 
+       y = "Type",
+       title = "Space Variant vs Type",
+       subtitle = "UGLY GRAPH",
+       caption = "Data: Jonathan McDowell's JSR Launch Vehicle Database")
+
+ggsave(here("data", "space.png")
+
+```
+
+## Task 2
+
+```{r}
+sf_ghg <- read_csv(here("data", "san_francisco_communitywide_greenhouse_gas_inventory.csv"))
+```
+
+```{r}
+sf_ghg_sum1 <- sf_ghg |>
+  group_by(Sector_General) |>
+  summarize(sum_emissions = sum(Emissions_mtCO2e, na.rm = TRUE))
+
+sf_ghg_sum2 <- sf_ghg |>
+  group_by(Calendar_Year, Commodity_Type) |>
+  summarize(sum_emissions = sum(Emissions_mtCO2e, na.rm = TRUE))
+
+sf_ghg_sub <- sf_ghg |>
+  filter(Calendar_Year >= 2005) |>
+  filter(str_detect(Sector_Detail2, pattern = "PG&E")) |>
+  select(Calendar_Year, Sector_Detail2, Emissions_mtCO2e)
+```
+
+## Task 3
+
+```{r}
+ggplot(data = sf_ghg_sum1, aes(y = fct_reorder(Sector_General, sum_emissions), x = sum_emissions)) +
+  geom_bar(stat = "identity", aes(fill = Sector_General),
+           show.legend = FALSE) +
+  labs(title = "Total Annual Greenhouse Gas Emissions by Sector",
+       x = "Carbon Dioxide Emissions (metric ton)",
+       y = "Sector") +
+  scale_fill_paletteer_d(palette = "palettetown::sunflora") +
+  theme(panel.grid.major.x = element_line(color = "grey"), 
+        panel.background = element_blank())
+
+ggsave("good.graph.jpeg")
+```
+
+
+
+
+
